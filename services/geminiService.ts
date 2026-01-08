@@ -1,7 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { AssetSymbol, AssetSignal, BatchSignalResponse, GroundingSource } from "../types";
-import { SYSTEM_INSTRUCTION, ASSETS } from "../constants";
+import { AssetSymbol, AssetSignal, BatchSignalResponse, GroundingSource } from "../types.ts";
+import { SYSTEM_INSTRUCTION, ASSETS } from "../constants.ts";
 
 export const fetchAllMarketSignals = async (): Promise<AssetSignal[]> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });

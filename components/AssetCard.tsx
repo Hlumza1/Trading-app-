@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AssetSignal, SignalType } from '../types';
+import { AssetSignal, SignalType } from '../types.ts';
 
 interface AssetCardProps {
   asset: { symbol: string; name: string };

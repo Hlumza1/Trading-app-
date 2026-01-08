@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import Sidebar from './components/Sidebar';
-import AssetCard from './components/AssetCard';
-import Modal from './components/Modal';
-import { ASSETS } from './constants';
-import { AssetSymbol, AppState, AssetSignal } from './types';
-import { fetchAllMarketSignals } from './services/geminiService';
+import Sidebar from './components/Sidebar.tsx';
+import AssetCard from './components/AssetCard.tsx';
+import Modal from './components/Modal.tsx';
+import { ASSETS } from './constants.ts';
+import { AssetSymbol, AppState, AssetSignal } from './types.ts';
+import { fetchAllMarketSignals } from './services/geminiService.ts';
 
 const SCAN_DURATION = 30; 
 
@@ -66,7 +66,6 @@ const App: React.FC = () => {
         lastUpdated: new Date().toLocaleTimeString()
       }));
 
-      // Trigger Browser Notification if enabled
       if (notificationsEnabled && "Notification" in window && Notification.permission === "granted") {
         new Notification("Forex Pulse Update", {
           body: `Analysis complete. Found ${allSignals.length} fresh signals.`,
