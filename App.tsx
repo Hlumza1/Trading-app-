@@ -7,7 +7,7 @@ import { ASSETS } from './constants.ts';
 import { AssetSymbol, AppState, AssetSignal } from './types.ts';
 import { fetchAllMarketSignals } from './services/geminiService.ts';
 
-const SCAN_DURATION = 30; 
+const SCAN_DURATION = 60; // Increased to 60s for deep grounding searches
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -76,7 +76,7 @@ const App: React.FC = () => {
       console.error(`Intelligence Refresh Error:`, err);
       setState(prev => ({
         ...prev,
-        error: "Pulse connection timeout. Please check your network and retry.",
+        error: err.message || "Failed to reach global data nodes. Check your API key and connection.",
         isLoading: false
       }));
     } finally {
@@ -138,7 +138,7 @@ const App: React.FC = () => {
             <div className="space-y-4">
               {[
                 { type: 'Update', msg: 'Latest monthly scan completed successfully.', time: state.lastUpdated || 'Just now' },
-                { type: 'System', msg: 'Gemini-3-Flash engine is scanning global nodes.', time: 'Continuously active' }
+                { type: 'System', msg: 'Gemini-3-Pro engine is scanning global nodes.', time: 'Continuously active' }
               ].map((alert, i) => (
                 <div key={i} className="bg-slate-900/50 border border-slate-800 p-6 rounded-3xl flex justify-between items-center hover:border-blue-500/50 transition-all">
                   <div className="flex items-center gap-4">
@@ -164,9 +164,9 @@ const App: React.FC = () => {
               <div className="p-8 flex justify-between items-center">
                 <div>
                   <p className="font-black text-white">Analysis Engine</p>
-                  <p className="text-sm text-slate-500">Currently using Gemini 3 Flash for real-time web grounding.</p>
+                  <p className="text-sm text-slate-500">Currently using Gemini 3 Pro for high-precision grounding.</p>
                 </div>
-                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Optimized</span>
+                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Enterprise</span>
               </div>
               <div className="p-8 flex justify-between items-center cursor-pointer group" onClick={toggleNotifications}>
                 <div>
@@ -241,16 +241,23 @@ const App: React.FC = () => {
             </button>
             {state.isLoading && (
               <p className="text-[9px] font-black text-blue-500 tracking-widest uppercase animate-pulse">
-                Querying Investing.com & ForexFactory nodes...
+                Consulting Investing.com & ForexFactory nodes...
               </p>
             )}
           </div>
         </header>
 
         {state.error && (
-          <div className="mb-10 p-6 bg-rose-500/10 border border-rose-500/20 rounded-3xl text-rose-400 text-sm font-bold flex items-center gap-4 animate-slide-up">
-            <i className="fas fa-exclamation-circle text-2xl"></i>
-            {state.error}
+          <div className="mb-10 p-6 bg-rose-500/10 border border-rose-500/20 rounded-3xl text-rose-400 text-sm font-bold flex flex-col gap-2 animate-slide-up">
+            <div className="flex items-center gap-4">
+              <i className="fas fa-exclamation-triangle text-2xl"></i>
+              <span>{state.error}</span>
+            </div>
+            {state.error.includes("API_KEY_MISSING") && (
+              <p className="text-xs opacity-80 mt-2 pl-10">
+                Go to Vercel Settings > Environment Variables, add <b>API_KEY</b>, and redeploy.
+              </p>
+            )}
           </div>
         )}
 

@@ -4,7 +4,13 @@ import { AssetSymbol, AssetSignal, BatchSignalResponse, GroundingSource } from "
 import { SYSTEM_INSTRUCTION, ASSETS } from "../constants.ts";
 
 export const fetchAllMarketSignals = async (): Promise<AssetSignal[]> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.API_KEY;
+  
+  if (!apiKey || apiKey === "undefined" || apiKey === "") {
+    throw new Error("API_KEY_MISSING: Please set your Gemini API Key in the Vercel Environment Variables.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   const today = new Date().toLocaleDateString('en-US', { 
     year: 'numeric', 
@@ -13,11 +19,11 @@ export const fetchAllMarketSignals = async (): Promise<AssetSignal[]> => {
   });
 
   const symbols = ASSETS.map(a => a.symbol).join(", ");
-  const prompt = `Today is ${today}. Perform an immediate monthly market analysis for: ${symbols}. Use real-time web grounding to find the absolute latest prices and sentiment. Do not use cached or historical data from previous months.`;
+  const prompt = `Today is ${today}. Perform a professional, institutional monthly analysis for: ${symbols}. You MUST use Google Search to verify latest prices and news on Investing.com and ForexFactory. Return the analysis in the requested JSON format.`;
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview', // Upgraded to Pro for complex market reasoning
       contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -46,9 +52,19 @@ export const fetchAllMarketSignals = async (): Promise<AssetSignal[]> => {
       },
     });
 
-    const jsonResponse: BatchSignalResponse = JSON.parse(response.text || '{"signals": []}');
+    if (!response.text) {
+      throw new Error("EMPTY_RESPONSE: The model returned no data. Try again in a few moments.");
+    }
+
+    let jsonResponse: BatchSignalResponse;
+    try {
+      jsonResponse = JSON.parse(response.text.trim());
+    } catch (parseError) {
+      console.error("Parse Error:", response.text);
+      throw new Error("DATA_MALFORMED: The intelligence engine returned an unreadable format. Retrying may fix this.");
+    }
+
     const candidate = response.candidates?.[0];
-    
     const globalSources: GroundingSource[] = [];
     if (candidate?.groundingMetadata?.groundingChunks) {
       candidate.groundingMetadata.groundingChunks.forEach((chunk: any) => {
@@ -70,8 +86,17 @@ export const fetchAllMarketSignals = async (): Promise<AssetSignal[]> => {
       sources: globalSources.slice(0, 8)
     })) as AssetSignal[];
     
-  } catch (error) {
-    console.error(`Batch Intelligence Error:`, error);
+  } catch (error: any) {
+    console.error(`Intelligence Refresh Error:`, error);
+    
+    // Extract more meaningful error messages for the user
+    if (error.message?.includes("429")) {
+      throw new Error("RATE_LIMIT: Too many requests. Please wait a minute before scanning again.");
+    }
+    if (error.message?.includes("401")) {
+      throw new Error("INVALID_KEY: Your API key appears to be invalid or expired.");
+    }
+    
     throw error;
   }
 };
