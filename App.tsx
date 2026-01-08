@@ -255,7 +255,7 @@ const App: React.FC = () => {
             </div>
             {state.error.includes("API_KEY_MISSING") && (
               <p className="text-xs opacity-80 mt-2 pl-10">
-                Go to Vercel Settings > Environment Variables, add <b>API_KEY</b>, and redeploy.
+                Go to Vercel Settings &gt; Environment Variables, add <b>API_KEY</b>, and redeploy.
               </p>
             )}
           </div>
