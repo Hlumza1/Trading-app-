@@ -1,0 +1,5 @@
+{
+  "name": "Forex Pulse: Monthly Signal Hub",
+  "description": "A sophisticated trading intelligence platform providing monthly buy/sell signals for XAUUSD, EURUSD, GBPUSD, and GBPEUR. Powered by Gemini-3-Flash with real-time grounding from Investing.com and ForexFactory.",
+  "requestFramePermissions": []
+}
